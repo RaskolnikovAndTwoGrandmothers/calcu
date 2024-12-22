@@ -51,17 +51,14 @@ func calculateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func performCalculation(expression string) (float64, error) {
-	// Убираем пробелы из выражения (если пользователь ввел выражение без пробелов)
 	expression = strings.ReplaceAll(expression, " ", "")
 
-	// Токенизация: разделение на числа и операторы
 	tokens := tokenizeExpression(expression)
 
 	if len(tokens) < 3 {
 		return 0, fmt.Errorf("недопустимое выражение")
 	}
 
-	// 1-й проход: обработка "*" и "/"
 	stack := []string{}
 	for i := 0; i < len(tokens); i++ {
 		if tokens[i] == "*" || tokens[i] == "/" {
@@ -69,7 +66,6 @@ func performCalculation(expression string) (float64, error) {
 				return 0, fmt.Errorf("ошибка в синтаксисе: %s", tokens[i])
 			}
 
-			// Берем предыдущий элемент в стеке и текущий токен
 			left, err := strconv.ParseFloat(stack[len(stack)-1], 64)
 			if err != nil {
 				return 0, fmt.Errorf("неверное число: %s", stack[len(stack)-1])
@@ -78,8 +74,7 @@ func performCalculation(expression string) (float64, error) {
 			if err != nil {
 				return 0, fmt.Errorf("неверное число: %s", tokens[i+1])
 			}
-
-			// Вычисляем результат (для * или /)
+			
 			var result float64
 			if tokens[i] == "*" {
 				result = left * right
@@ -89,17 +84,12 @@ func performCalculation(expression string) (float64, error) {
 				}
 				result = left / right
 			}
-
-			// Заменяем последний элемент в стеке на результат
 			stack[len(stack)-1] = fmt.Sprintf("%f", result)
 			i++ // Пропускаем следующий токен, так как он уже обработан
 		} else {
-			// Оператор или число, добавляем в стек
 			stack = append(stack, tokens[i])
 		}
 	}
-
-	// 2-й проход: обработка "+" и "-"
 	result, err := strconv.ParseFloat(stack[0], 64)
 	if err != nil {
 		return 0, fmt.Errorf("неверное число в результате: %s", stack[0])
@@ -124,7 +114,6 @@ func performCalculation(expression string) (float64, error) {
 	return result, nil
 }
 
-// Вспомогательная функция для токенизации выражения
 func tokenizeExpression(expression string) []string {
 	var tokens []string
 	num := ""
